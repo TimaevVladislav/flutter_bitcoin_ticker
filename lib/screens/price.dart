@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bitcoin_ticker/store/coins.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -9,14 +11,29 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String? selected = "USD";
 
-  List<DropdownMenuItem> getDropdownItems() {
-    List<DropdownMenuItem<dynamic>>? dropdownItems = [];
+  DropdownButton<String> androidDropdown() {
+    List<DropdownMenuItem<String>> items = [];
     for (String currency in currenciesList) {
       var item = DropdownMenuItem(child: Text(currency), value: currency);
-      dropdownItems.add(item);
+      items.add(item);
     }
 
-    return dropdownItems;
+    return DropdownButton<String>(
+        value: selected,
+        items: items,
+        onChanged: (value) {
+          selected = value;
+        });
+  }
+
+  List<Text> pickerDropdown() {
+    List<Text> items = [];
+
+    for (String currency in currenciesList) {
+      items.add(Text(currency));
+    }
+
+    return items;
   }
 
   @override
@@ -55,14 +72,12 @@ class _PriceScreenState extends State<PriceScreen> {
               alignment: Alignment.center,
               padding: EdgeInsets.only(bottom: 30.0),
               color: Colors.lightBlue,
-              child: DropdownButton<dynamic>(
-                  value: selected,
-                  items: getDropdownItems(),
-                  onChanged: (value) {
-                    setState(() {
-                      selected = value;
-                    });
-                  })),
+              child: CupertinoPicker(
+                backgroundColor: Colors.lightBlue,
+                itemExtent: 32.0,
+                onSelectedItemChanged: null,
+                children: Platform.isIOS ? pickerDropdown() : pickerDropdown(),
+              )),
         ],
       ),
     );
