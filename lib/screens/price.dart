@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bitcoin_ticker/store/coins.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
@@ -9,7 +11,8 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String selected = "USD";
+  String fiat = "USD";
+  String crypto = "BTC";
   String rate = "";
 
   DropdownButton<String> androidDropdown() {
@@ -20,10 +23,10 @@ class _PriceScreenState extends State<PriceScreen> {
     }
 
     return DropdownButton<String>(
-        value: selected,
+        value: fiat,
         items: items,
         onChanged: (value) {
-          selected = value.toString();
+          fiat = value.toString();
         });
   }
 
@@ -37,9 +40,11 @@ class _PriceScreenState extends State<PriceScreen> {
     return items;
   }
 
-  @override
-  void initState() {
-    super.initState();
+  Future loadingCoin() async {
+    http.Response response = await http.get(
+        Uri.parse("https://rest.coinapi.io/v1/exchangerate/$crypto/$fiat"),
+        headers: {"X-CoinAPI-Key": "11B9E2CD-5B0E-411C-AEFA-3A7C29DEF3D2"});
+    return jsonDecode(response.body);
   }
 
   @override
@@ -64,7 +69,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = $rate $selected',
+                  '1 $crypto = $rate $fiat',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
@@ -84,7 +89,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 itemExtent: 32.0,
                 onSelectedItemChanged: (index) {
                   setState(() {
-                    selected = currenciesList[index];
+                    fiat = currenciesList[index];
                   });
                 },
                 children: Platform.isIOS ? pickerDropdown() : pickerDropdown(),
