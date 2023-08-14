@@ -9,7 +9,8 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String? selected = "USD";
+  String selected = "USD";
+  String rate = "";
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> items = [];
@@ -22,7 +23,7 @@ class _PriceScreenState extends State<PriceScreen> {
         value: selected,
         items: items,
         onChanged: (value) {
-          selected = value;
+          selected = value.toString();
         });
   }
 
@@ -37,10 +38,16 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('🤑 Coin Ticker'),
+        backgroundColor: Colors.lightBlue,
+        title: Center(child: Text('🤑 Coin Ticker')),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -57,7 +64,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = $rate $selected',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
@@ -75,7 +82,11 @@ class _PriceScreenState extends State<PriceScreen> {
               child: CupertinoPicker(
                 backgroundColor: Colors.lightBlue,
                 itemExtent: 32.0,
-                onSelectedItemChanged: null,
+                onSelectedItemChanged: (index) {
+                  setState(() {
+                    selected = currenciesList[index];
+                  });
+                },
                 children: Platform.isIOS ? pickerDropdown() : pickerDropdown(),
               )),
         ],
