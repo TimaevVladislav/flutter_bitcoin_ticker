@@ -11,8 +11,7 @@ class _PriceScreenState extends State<PriceScreen> {
 
   List<DropdownMenuItem> getDropdownItems() {
     List<DropdownMenuItem<dynamic>>? dropdownItems = [];
-    for (int i = 0; i < currenciesList.length; i++) {
-      String currency = currenciesList[i];
+    for (String currency in currenciesList) {
       var item = DropdownMenuItem(child: Text(currency), value: currency);
       dropdownItems.add(item);
     }
@@ -62,7 +61,6 @@ class _PriceScreenState extends State<PriceScreen> {
                   onChanged: (value) {
                     setState(() {
                       selected = value;
-                      print(selected);
                     });
                   })),
         ],
