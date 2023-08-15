@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bitcoin_ticker/store/coin.api.dart';
 import 'package:flutter_bitcoin_ticker/store/coins.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String fiat = "USD";
   String crypto = "BTC";
-  String rate = "";
+  double rate = 0;
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> items = [];
@@ -40,11 +41,16 @@ class _PriceScreenState extends State<PriceScreen> {
     return items;
   }
 
-  Future loadingCoin() async {
-    http.Response response = await http.get(
-        Uri.parse("https://rest.coinapi.io/v1/exchangerate/$crypto/$fiat"),
-        headers: {"X-CoinAPI-Key": "11B9E2CD-5B0E-411C-AEFA-3A7C29DEF3D2"});
-    return jsonDecode(response.body);
+  @override
+  void initState() {
+    super.initState();
+    loadingCoinRate();
+  }
+
+  Future<dynamic> loadingCoinRate() async {
+    Coin coin = Coin(crypto, fiat);
+    var response = await coin.loadingCoin();
+    return response;
   }
 
   @override
