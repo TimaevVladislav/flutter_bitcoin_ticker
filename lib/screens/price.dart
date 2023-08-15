@@ -44,19 +44,27 @@ class _PriceScreenState extends State<PriceScreen> {
   @override
   void initState() {
     super.initState();
-    setCoinRate();
+    loadingCoinRates();
   }
 
-  setCoinRate() async {
+  void loadingCoinRates() {
     for (String c in cryptoList) {
-      var response = await Coin().loadingCoin(c, fiat);
-
-      setState(() {
-        rates[c] = response["rate"].toString();
-        crypto = response["asset_id_base"];
-        fiat = response["asset_id_quote"];
-      });
+      setCoinRate(c);
     }
+  }
+
+  setCoinRate(c) async {
+    var response = await Coin().loadingCoin(c, fiat);
+
+    if (response["rate"] == null) {
+      loading = true;
+    }
+
+    setState(() {
+      rates[c] = response["rate"].toString();
+      crypto = response["asset_id_base"];
+      fiat = response["asset_id_quote"];
+    });
   }
 
   @override
@@ -96,7 +104,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 onSelectedItemChanged: (index) {
                   setState(() {
                     fiat = currenciesList[index];
-                    setCoinRate();
+                    loadingCoinRates();
                   });
                 },
                 children: Platform.isIOS ? pickerDropdown() : pickerDropdown(),
