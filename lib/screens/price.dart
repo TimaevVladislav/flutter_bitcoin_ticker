@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bitcoin_ticker/store/coin.api.dart';
+import 'package:flutter_bitcoin_ticker/components/card.dart';
 import 'package:flutter_bitcoin_ticker/store/coins.dart';
 import 'dart:io' show Platform;
 
@@ -12,7 +13,8 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String fiat = "USD";
   String crypto = "BTC";
-  double rate = 0;
+  bool loading = false;
+  Map<String, dynamic> rates = {"BTC": "", "ETH": "", "LTC": ""};
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> items = [];
@@ -45,20 +47,16 @@ class _PriceScreenState extends State<PriceScreen> {
     setCoinRate();
   }
 
-  loadingCoinRate() async {
-    Coin coin = Coin(crypto, fiat);
-    var response = await coin.loadingCoin();
-    return response;
-  }
+  setCoinRate() async {
+    for (String c in cryptoList) {
+      var response = await Coin().loadingCoin(c, fiat);
 
-  void setCoinRate() async {
-    var coin = await loadingCoinRate();
-
-    setState(() {
-      rate = coin['rate'];
-      crypto = coin['asset_id_base'];
-      fiat = coin['asset_id_quote'];
-    });
+      setState(() {
+        rates[c] = response["rate"].toString();
+        crypto = response["asset_id_base"];
+        fiat = response["asset_id_quote"];
+      });
+    }
   }
 
   @override
@@ -66,7 +64,7 @@ class _PriceScreenState extends State<PriceScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
-        title: Center(child: Text('🤑 Coin Ticker')),
+        title: Center(child: Text('Coin Ticker')),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,24 +72,18 @@ class _PriceScreenState extends State<PriceScreen> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 $crypto = $rate $fiat',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            child: Column(children: <Widget>[
+              CryptoCard(
+                  crypto: "BTC",
+                  rate: loading ? "?" : rates["BTC"],
+                  fiat: fiat),
+              CryptoCard(
+                  crypto: "ETH",
+                  rate: loading ? "?" : rates["ETH"],
+                  fiat: fiat),
+              CryptoCard(
+                  crypto: "LTC", rate: loading ? "?" : rates["LTC"], fiat: fiat)
+            ]),
           ),
           Container(
               height: 150.0,
@@ -104,7 +96,6 @@ class _PriceScreenState extends State<PriceScreen> {
                 onSelectedItemChanged: (index) {
                   setState(() {
                     fiat = currenciesList[index];
-                    loadingCoinRate();
                     setCoinRate();
                   });
                 },
