@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bitcoin_ticker/store/coin.api.dart';
@@ -44,13 +42,23 @@ class _PriceScreenState extends State<PriceScreen> {
   @override
   void initState() {
     super.initState();
-    loadingCoinRate();
+    setCoinRate();
   }
 
-  Future<dynamic> loadingCoinRate() async {
+  loadingCoinRate() async {
     Coin coin = Coin(crypto, fiat);
     var response = await coin.loadingCoin();
     return response;
+  }
+
+  void setCoinRate() async {
+    var coin = await loadingCoinRate();
+
+    setState(() {
+      rate = coin['rate'];
+      crypto = coin['asset_id_base'];
+      fiat = coin['asset_id_quote'];
+    });
   }
 
   @override
