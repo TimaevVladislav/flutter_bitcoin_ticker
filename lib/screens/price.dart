@@ -104,6 +104,8 @@ class _PriceScreenState extends State<PriceScreen> {
                 onSelectedItemChanged: (index) {
                   setState(() {
                     fiat = currenciesList[index];
+                    loadingCoinRate();
+                    setCoinRate();
                   });
                 },
                 children: Platform.isIOS ? pickerDropdown() : pickerDropdown(),
